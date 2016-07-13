@@ -1,0 +1,22 @@
+html
+  head
+    link(rel="stylesheet",type="text/css",href="app.css")
+    script(src="/jQuery/dist/jquery.min.js")
+    script(src="/app.js")
+  body
+    .contaner
+      .h2 Following collections are present: #{collections}
+      form#data_form(action='api/documents',method="GET")
+        fieldset.fieldset
+          .field-group
+            label.label(for="collection") Collection
+            input.field#collection(type="text",name="collection")
+          .field-group
+            label.label(for="data") Query (inline json format)
+            textarea.field#data(name="data")
+        .actions
+          button.btn.btn_success(data-method="GET") Search
+          button.btn.btn_info(data-method="POST") Create
+          button.btn.btn_danger(data-method="DELETE") Delete
+      .flash.hidden
+

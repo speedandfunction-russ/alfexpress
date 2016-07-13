@@ -1,0 +1,56 @@
+.hidden {
+  display: none;
+}
+.fieldset {
+  text-align: center;
+  border: none;
+}
+.field-group {
+  display: inline-block;
+  margin: 20px;
+  vertical-align: top;
+}
+.field-group .label {
+  display: block;
+  margin-bottom: 5px;
+}
+.field-group .field {
+  width: 400px;
+  padding: 3px;
+  font-size: 16px;
+  border: 2px solid #ccc;
+  border-radius: 3px;
+}
+.field-group .field[type="text"] {
+  height: 30px;
+  line-height: 30px;
+}
+.btn {
+  display: inline-block;
+  height: 40px;
+  min-width: 160px;
+  background: #ccc;
+  font-size: 20px;
+  line-height: 40px;
+  border: none;
+  border-radius: 10px;
+  padding: 0;
+  text-align: center;
+}
+.actions {
+  text-align: center;
+}
+.actions .btn {
+  margin-right: 10px;
+}
+.actions .btn:last-child {
+  margin-right: 0;
+}
+.flash {
+  width: 980px;
+  padding: 10px;
+  background: #000;
+  color: #4f4;
+  margin: 0 auto;
+  word-wrap: break-word;
+}

@@ -1,0 +1,20 @@
+{
+  "name": "alfexpress",
+  "description": "Express.js version of alfresco",
+  "main": "index.js",
+  "authors": [
+    "Russ Zhurba"
+  ],
+  "license": "ISC",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jQuery": "^3.0.0"
+  }
+}
