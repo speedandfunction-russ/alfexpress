@@ -38,4 +38,21 @@ $(function(){
 
   });
 
+  if ($('#chat_form').length > 0) {
+    var socket = new WebSocket("ws://localhost:8001");
+    $('.flash').removeClass('hidden');
+
+    socket.onmessage = function(event) {
+      console.log(event.data);
+      $('.flash').append('<p>' + event.data + '</p>');
+    };
+
+    $('#chat_form').on('submit', function() {
+      socket.send($('#message').val());
+      $('#message').val('');
+
+      return false;
+    });
+  }
+
 });

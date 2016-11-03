@@ -1,0 +1,17 @@
+html
+  head
+    link(rel="stylesheet",type="text/css",href="app.css")
+  body
+    .contaner
+      .h2 Web socket chat
+      form#chat_form(action='api/documents',method="GET")
+        fieldset.fieldset
+          .field-group
+            label.label(for="message") Message
+            textarea.field#message(type="text",name="message")
+        .actions
+          button.btn.btn_danger Send
+      .flash.hidden
+    script(src="/jQuery/dist/jquery.min.js")
+    script(src="/app.js")
+
