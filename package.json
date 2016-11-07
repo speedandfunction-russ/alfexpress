@@ -21,6 +21,7 @@
     "pug": "^2.0.0-beta3"
   },
   "devDependencies": {
+    "cookie-parser": "^1.4.3",
     "nodejs-websocket": "^1.7.0"
   }
 }

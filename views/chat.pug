@@ -4,6 +4,9 @@ html
   body
     .contaner
       .h2 Web socket chat
+      .user-info
+        p.name #{user}
+        p.ip IP: #{ip}
       form#chat_form(action='api/documents',method="GET")
         fieldset.fieldset
           .field-group
