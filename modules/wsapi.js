@@ -8,11 +8,74 @@ var broadcast = function (server, msg) {
   server.connections.forEach(function (conn) {
       conn.sendText(msg);
   });
-}
+};
+
+var MODELS = {
+  CHAT: {
+    data: {
+      messages: []
+    },
+    addMessage: function(params) {
+      MODELS.CHAT.data.messages.push({
+        user: params.user,
+        message: params.message
+      })
+    }
+  }
+};
 
 var setConnectionName = function(conn) {
 
 };
+
+var METHODS = {
+  broadcast: function(params) {
+    broadcast(params.server, params.connection.user + ':' + params.data);
+  },
+  update: function(params) {
+    var server = params.server,
+      request = params.data,
+      path = request.path,
+      newData = request.value,
+      obj = DATA;
+
+    console.log('starting update', params.data);
+    for (var i = 0; i < path.length; i++) {
+      if (i === path.length - 1) {
+        obj[path[i]] = newData;
+        broadcast(server, '{"method":"update", "data":' + JSON.stringify(DATA) + '}');
+      } else {
+        if (!obj.hasOwnProperty(path[i])) {
+          obj[path[i]] = {};
+        }
+        obj = obj[path[i]];
+      }
+    }
+  },
+  updateModel: function(params) {
+    var request = params.data,
+      server = params.server,
+      method = request.method,
+      model = MODELS[request.model],
+      data = request.data;
+
+    model[method](data);
+
+    broadcast(server, '{"method":"updateModel", "data":' + JSON.stringify(request) + '}');
+  },
+  getModel: function(params) {
+    var request = params.data,
+      server = params.server,
+      model = MODELS[request.model],
+      connection = params.connection,
+      response = {
+        model: request.model,
+        data: model.data
+      };
+
+    connection.sendText('{"method":"getModel", "data":' + JSON.stringify(response) + '}');
+  }
+}
 
 
 module.exports = function(app) {
@@ -32,8 +95,16 @@ module.exports = function(app) {
 
       conn.on("text", function (str) {
           console.log("Received "+str);
-          conn.username = str;
-          broadcast(server, conn.user + ':' + str);
+
+          var request = JSON.parse(str);
+          var method = request.method;
+          var data = request.data;
+
+          METHODS[method]({
+            data: data,
+            connection: conn,
+            server: server
+          });
       });
       conn.on("close", function (code, reason) {
           console.log("Connection closed")
