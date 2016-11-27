@@ -1,6 +1,8 @@
 // requires:
 // authorization module
 
+var MongoClient = require('mongodb').MongoClient;
+
 var ws = require("nodejs-websocket");
  var cookieParser = require('cookie-parser')
 // Scream server example: "hi" -> "HI!!!" 
@@ -27,6 +29,106 @@ var MODELS = {
 var setConnectionName = function(conn) {
 
 };
+
+var syncToDb = function(interval) {
+  var models = Object.keys(MODELS),
+    THIS = {};
+  models.forEach(function(model) {
+
+    MongoClient.connect('mongodb://localhost:27017/alfresco', function(err, db) {
+      if (err) {
+        throw err;
+      }
+
+      function set() {
+        console.log('mod data', MODELS[model].data);
+        db.collection('models').update({name: model}, {
+          $set: {
+            data: MODELS[model].data
+          }
+        });
+      }
+      set();
+
+      if (interval) {
+        var int = setInterval(function() {
+          set();
+        }, interval);
+
+        THIS.stop = function() {
+          clearInterval(int);
+          db.close();
+        }        
+      } else {
+        THIS.stop = function() {
+          console.log('WARNING! syncToDb.stop was called but the interval was not set');
+        }
+      }
+
+    });
+  });
+  return THIS;
+};
+
+var syncFromDb = function() {
+  var models = Object.keys(MODELS);
+  models.forEach(function(model) {
+    MongoClient.connect('mongodb://localhost:27017/alfresco', function(err, db) {
+      db.collection('models').find({name: model}).toArray(function(err, result) {
+        console.log('syncFromDb', result);
+        MODELS[model].data = result[0].data;
+        console.log('updating model object', model, JSON.stringify(result));
+        db.close();
+      });   
+    });
+  });
+};
+
+// Is not supported. May require update
+var createMissingDocuments = function() {
+  var models = Object.keys(MODELS),
+    promises = [],
+    THIS;
+  models.forEach(function(model, i) {
+    MongoClient.connect('mongodb://localhost:27017/alfresco', function(err, db) {
+      db.collection('models').find({name: model}).toArray(function(err, result) {
+        if (err) {
+          throw err;
+        }
+        if (result.length === 0) {
+          db.collection('models').insert({
+            name: model,
+            data: MODELS[model].data
+          });
+        }
+        console.log(model, result);
+        db.close();
+      });   
+    });
+
+    // if (i === models.length - 1) {
+    //   THIS.promise
+    // }
+  });
+};
+
+// Is not supported. May require update
+var cleanDocuments = function() {
+  var models = Object.keys(MODELS);
+
+  models.forEach(function(model) {
+    MongoClient.connect('mongodb://localhost:27017/alfresco', function(err, db) {
+      db.collection('models').remove({name: model});
+      db.close();
+    });
+  });
+
+};
+
+
+// Use syncToDb first to reset all the data to default on each start
+syncFromDb();
+syncToDb(2000);
 
 var METHODS = {
   broadcast: function(params) {
