@@ -7,6 +7,7 @@ app.modules.crypto = require('./modules/crypto.js')(app);
 app.modules.auth = require('./modules/authorization.js')(app);
 app.modules.dbapi = require('./modules/dbapi.js')(app);
 app.modules.wsapi = require('./modules/wsapi.js')(app);
+app.modules.wsapi = require('./modules/game.js')(app);
 // var path = require("path");
 var port = process.env.PORT || 3000;
 

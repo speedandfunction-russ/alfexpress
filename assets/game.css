@@ -1,0 +1,33 @@
+.body1 {
+  font-size: 14px;
+}
+.grid_inline {
+  font-size: 0;
+}
+.grid_inline .col {
+  display: inline-block;
+  margin-right: 2%;
+  font-size: 0;
+}
+.col:last-child {
+  margin-right: 0;
+  vertical-align: top;
+}
+.col_one-third {
+  width: 32%;
+}
+.col_two-thirds {
+  width: 66%;
+}
+.fieldset {
+  border: none;
+}
+.game-board {
+  background-color: #ccc;
+  min-height: 500px;
+}
+.tank {
+  position: absolute;
+  transition: all .2s;
+}
+

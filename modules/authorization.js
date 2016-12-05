@@ -199,7 +199,7 @@ module.exports = function(app) {
       if (!user) { return res.send(info); }
       req.logIn(user, function(err) {
         if (err) { return next(err); }
-        return res.redirect('/chat');
+        return res.redirect('/game');
       });
     })(req, res);
 
@@ -209,7 +209,7 @@ module.exports = function(app) {
   app.get('/', function(req, res) {
     // Display the Login page with any flash message, if any
     if (req.isAuthenticated()) {
-      res.redirect('/chat');
+      res.redirect('/game');
     }
     res.render('index', { message: req.flash('message') });
   });

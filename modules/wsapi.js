@@ -23,6 +23,31 @@ var MODELS = {
         message: params.message
       })
     }
+  },
+  TANK: {
+    data: {
+      position: {
+        left: 0,
+        top: 0,
+        speed: 8
+      }
+    },
+    move: function(direction) {
+      MODELS.TANK.data.position.left = MODELS.TANK.data.position.left || 0;
+      MODELS.TANK.data.position.top = MODELS.TANK.data.position.top || 0;
+      if (direction == 'left') {
+        MODELS.TANK.data.position.left -= MODELS.TANK.data.position.speed;
+      }
+      if (direction == 'right') {
+        MODELS.TANK.data.position.left += MODELS.TANK.data.position.speed;
+      }
+      if (direction == 'top') {
+        MODELS.TANK.data.position.top -= MODELS.TANK.data.position.speed;
+      }
+      if (direction == 'bottom') {
+        MODELS.TANK.data.position.top += MODELS.TANK.data.position.speed;
+      }
+    }
   }
 };
 
