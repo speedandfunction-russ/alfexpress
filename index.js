@@ -21,6 +21,7 @@ app.set('view engine', 'pug');
 
 app.use(express.static('bower_components'));
 app.use(express.static('assets'));
+app.use('/models', express.static('views/models'))
 
 
 app.listen(port, function () {

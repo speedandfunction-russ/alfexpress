@@ -1,4 +1,5 @@
 (function() {
+
   var MODELS = {
     CHAT: {
       data: {
@@ -93,7 +94,7 @@
           modelMethod = request.method,
           model = MODELS[request.model],
           modelData = request.data,
-          events = EVENTS[request.model];
+          events = EVENTS[request.model] || [];
 
         model[modelMethod](modelData);
 
@@ -107,7 +108,7 @@
         var request = data,
           model = MODELS[request.model],
           modelData = request.data,
-          events = EVENTS[request.model];
+          events = EVENTS[request.model] || [];
 
         model.data = modelData;
 

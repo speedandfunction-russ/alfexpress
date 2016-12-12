@@ -1,6 +1,13 @@
 html
   head
     link(rel="stylesheet",type="text/css",href="game.css")
+    script(src="../../webcomponentsjs/webcomponents-lite.js")
+    script
+      |  /*
+      |  window.Polymer = window.Polymer || {};
+      |  window.Polymer.dom = 'shadow';
+      |  */
+    link(rel="import",href="models/tank.html")
   body
     .container
       .grid.grid_inline
@@ -13,11 +20,13 @@ html
                 textarea.field#message(type="text",name="message")
             .actions
               button.btn.btn_danger Send
+              icon-toggle-demo
           .chat.body1
         .col.col_two-thirds
           .game-board
             .tank#tank1
-              include graphics/tank.svg
+              tank-model
+              //- include graphics/tank.svg
     script(src="/jQuery/dist/jquery.min.js")
     script(src="/game.js")
 

@@ -1,0 +1,80 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-a11y-keys/iron-a11y-keys.html">
+
+<dom-module id="tank-model">
+
+
+  <template>
+
+    <style>
+      :host {
+        display: inline-block;
+      }
+      iron-icon {
+        fill: var(--icon-toggle-color, rgba(0,0,0,0));
+        stroke: var(--icon-toggle-outline-color, currentcolor);
+      }
+      :host([pressed]) iron-icon {
+        fill: var(--icon-toggle-pressed-color, currentcolor);
+      }    
+    </style>
+    
+    <!-- local DOM goes here -->
+    <iron-a11y-keys id="a11y" target="[[target]]" keys="down" on-keys-pressed="onDown"></iron-a11y-keys>
+
+    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="450px" height="220px" viewBox="0 0  450 220" preserveAspectRatio="xMidYMid meet"><rect x="23" y="47" stroke="purple" id="e83_rectangle" style="stroke-width: 1px;" width="275" height="133" fill="khaki"/><rect x="4" y="18" stroke="purple" id="e97_rectangle" style="stroke-width: 1px;" width="321" height="30" fill="khaki"/><rect x="1" y="179" stroke="purple" id="e110_rectangle" style="stroke-width: 1px;" width="321" height="30" fill="khaki"/><ellipse id="e159_ellipse" cx="156" cy="113" stroke="purple" style="stroke-width: 1px;" rx="78" ry="37" fill="khaki"/><rect x="227" y="108" stroke="purple" id="e186_rectangle" style="stroke-width: 1px;" width="193" height="12" fill="khaki"/></svg>
+
+  </template>
+
+  <script>
+  Polymer({
+    is: 'tank-model',
+    properties: {
+      pressed: {
+        type: Boolean,
+        notify: true,
+        reflectToAttribute: true,
+        value: false
+      },
+      target: {
+        type: Object,
+        value: function() {
+          return document.body;
+        }
+      }
+    },
+    listeners: {
+      "tap": "toggle",
+    },   
+    toggle: function() {
+      this.pressed = !this.pressed;
+    },
+    onDown: function() {
+      alert('down!');
+    }
+  });
+  </script>
+
+  <script>
+    EVENTS = EVENTS || {};
+    EVENTS.TANK = [
+      {
+        method: 'move',
+        function(direction) {
+          console.log(MODELS.TANK.data);
+          $('#tank1').css({left: MODELS.TANK.data.position.left, top: MODELS.TANK.data.position.top});
+        }
+      },
+      {
+        method: 'getModel',
+        function: function(data) {
+          MODELS.TANK.data = data; 
+          $('#tank1').css({left: MODELS.TANK.data.position.left, top: MODELS.TANK.data.position.top});   
+        }
+      }
+    ];
+
+  </script>
+
+</dom-module>
+
