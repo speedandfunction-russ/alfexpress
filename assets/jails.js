@@ -1,12 +1,12 @@
 (function() {
   'use strict';
 
-  if (Jails && typeof Jails === 'function') {
+  if (window.Jails && typeof window.Jails === 'function') {
     console.warn('Jails was already inited');
     return;
   }
 
-  Jails = function(config) {
+  window.Jails = function(config) {
     var JAILS = {
       models: {}, // Stores model constructors
       modelInstances: {}, // Stores all model instances in format "modelName" + id
@@ -49,6 +49,8 @@
       } // Events on callback for ws methods
     };
 
+    JAILS.ws = new WebSocket("ws://localhost:8001");
+
     function log(message) {
       if (config.debug) {
         console.log(message);
@@ -73,15 +75,70 @@
     };
 
     JAILS.registerModel = function(modelName, data) {
-      var defaults = {
-        create: function(data) {
+      var defaults = function(modelName) {
+          return {
+            create: function(data) {
+              var lastId, id, dataKeys;
+              console.log('creating model', modelName, data);
+              data = data || {};
+              dataKeys = Object.keys(data);
 
+              if (!Array.isArray(JAILS.index[modelName])) { // Set model index to array if it wasn't
+                JAILS.index[modelName] = [];
+              }
+
+              if (JAILS.index[modelName].length > 0) {
+                lastId = JAILS.index[modelName][JAILS.index[modelName].length - 1]; // last item in index
+                currentId = lastId + 1;
+              } else {
+                id = 0;
+              }
+
+              JAILS.modelInstances[modelName + id] = {
+                id: id
+              };
+
+              JAILS.modelInstances[modelName + id].protectedMethods = JAILS.models[modelName].instanceMethods(JAILS.modelInstances[modelName + id]);
+              JAILS.modelInstances[modelName + id].methods = {};
+
+              var protectedMethodsList = Object.keys(JAILS.modelInstances[modelName + id].protectedMethods);
+              protectedMethodsList.forEach(function(method) {
+                JAILS.modelInstances[modelName + id].methods[method] = function(data) {
+                  var request = {
+                    method: 'updateModel',
+                    data: {
+                      model: modelName + id,
+                      method: method,
+                      data: data
+                    }
+                  };
+
+                  JAILS.ws.send(JSON.stringify(request));
+                };
+              });
+              JAILS.modelInstances[modelName + id].properties = JAILS.models[modelName].instanceProperties; // setting default properties
+
+              dataKeys.forEach(function(key) { // overwriting default properties with ones from data for create
+                JAILS.modelInstances[modelName + id].properties[key] = data[key];
+              });
+
+              // registering events
+              JAILS.modelInstances[modelName + id].on = function(event, callback) {
+                JAILS.events[modelName + id] = JAILS.events[modelName + id] || [];
+
+                JAILS.events[modelName + id].push({
+                  method: event,
+                  function: callback
+                })
+              };
+              return JAILS.modelInstances[modelName + id];
+            },
+            update: function(data) {},
+            delete: function(data) {},
+            find: function(data) {}
+          }
         },
-        update: function(data) {},
-        delete: function(data) {},
-        find: function(data) {}
-      },
-      instanceMethods = MODELS[modelName];
+        defaultKeys = Object.keys(defaults);
 
       // Exit if model already exists
       if (JAILS.models[modelName]) {
@@ -89,19 +146,56 @@
         return;
       }
 
-      JAILS.models[modelName] = defaults;
-      JAILS.models[modelName].instanceMethods = MODELS[modelName];
+      JAILS.models[modelName] = data;
+
+
+      JAILS.models[modelName].protectedMethods = defaults(modelName);
+      JAILS.models[modelName].methods = {};
+
+      var protectedMethodsList = Object.keys(JAILS.models[modelName].protectedMethods);
+      protectedMethodsList.forEach(function(method) {
+        JAILS.models[modelName].methods[method] = function(data) {
+          var request = {
+            method: method,
+            data: {
+              model: modelName,
+              data: data
+            }
+          };
+
+          JAILS.ws.send(JSON.stringify(request));
+        };
+      });
+      // defaultKeys.forEach(function(key) { // setting default Model methods;
+
+      //   if (!JAILS.models[modelName].methods.hasOwnProperty(key)) { // no key in model methods, adding default;
+      //     JAILS.models[modelName].methods[key] = defaults.key;
+      //   } else {
+      //     console.warn('Careful! Overwritten default method ' + key + ' for ' + modelName);
+      //   }
+
+      // });
+
+      // Adding events
+      JAILS.models[modelName].on = function(event, callback) {
+        JAILS.events[modelName] = JAILS.events[modelName] || [];
+
+        JAILS.events[modelName].push({
+          method: event,
+          function: callback
+        })
+      };
+
+      return JAILS.models[modelName];
 
     };
 
 
-    JAILS.ws = new WebSocket("ws://localhost:8001");
-
     JAILS.ws.onmessage = function(event) {
-      log('came!', event.data);
       var response = JSON.parse(event.data),
         method = response.method,
         data = response.data;
+      log({message: 'came', event: event.data});
 
       if (method === 'updateModel') {
         var request = data,
@@ -110,7 +204,7 @@
           modelData = request.data,
           events = JAILS.events[request.model] || [];
 
-        model[modelMethod](modelData);
+        model.protectedMethods[modelMethod](modelData);
 
         events.forEach(function(event) {
           if (event.method == modelMethod) {
@@ -133,7 +227,42 @@
         });
 
       }
+      if (method === 'create') {
+        var request = data,
+          model = JAILS.models[request.model],
+          modelServerData = request.data,
+          properties = request.properties,
+          modeLocalData = model.protectedMethods.create(properties), // creating new model
+          events = JAILS.events[request.model] || [];
+
+
+        // TODO: check whether modelServerData and modeLocalData are even
+        events.forEach(function(event) {
+          if (event.method === 'create') {
+            event.function(modeLocalData);
+          }
+        });
+
+      }
+      if (method === 'getIndex') {
+        var request = data,
+          index = request.data,
+          events = JAILS.events.getIndex || [];
+
+        JAILS.index = index;
+
+        events.forEach(function(event) {
+          event.function(index);
+        });
+
+      }
     };
+
+    JAILS.socketPromise = new Promise(function(resolve) {
+      JAILS.ws.onopen = function() {
+        resolve();
+      };
+    });
 
 
     return JAILS;

@@ -1,13 +1,6 @@
 html
   head
     link(rel="stylesheet",type="text/css",href="game.css")
-    script(src="../../webcomponentsjs/webcomponents-lite.js")
-    script
-      |  /*
-      |  window.Polymer = window.Polymer || {};
-      |  window.Polymer.dom = 'shadow';
-      |  */
-    link(rel="import",href="models/tank.html")
   body
     .container
       .grid.grid_inline
@@ -25,8 +18,8 @@ html
         .col.col_two-thirds
           .game-board
             .tank#tank1
-              tank-model
-              //- include graphics/tank.svg
-    script(src="/jQuery/dist/jquery.min.js")
+              //- tank-model
+    script(src="/jails_polyfill.js")
+    script(src="/jails.js")
     script(src="/game.js")
 
