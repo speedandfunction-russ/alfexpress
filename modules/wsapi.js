@@ -14,6 +14,7 @@ module.exports = function(app) {
   };
 
   var TANK = require('../models/tank.js');
+  var NARD = require('../models/nard.js');
 
   var JAILS = {
     models: {}, // Stores model constructors
@@ -36,10 +37,11 @@ module.exports = function(app) {
 
             if (JAILS.index[modelName].length > 0) {
               lastId = JAILS.index[modelName][JAILS.index[modelName].length - 1]; // last item in index
-              currentId = lastId + 1;
+              id = lastId + 1;
             } else {
               id = 0;
             }
+            JAILS.index[modelName].push(id);
 
             JAILS.modelInstances[modelName + id] = {
               id: id
@@ -83,6 +85,7 @@ module.exports = function(app) {
   };
 
   JAILS.registerModel('TANK', TANK);
+  JAILS.registerModel('NARD', NARD);
 
 
   var setConnectionName = function(conn) {
@@ -135,6 +138,12 @@ module.exports = function(app) {
       MongoClient.connect('mongodb://localhost:27017/alfresco', function(err, db) {
         db.collection('models').find({name: model}).toArray(function(err, result) {
           console.log('syncFromDb', result);
+          if (result.length === 0) {
+            db.collection('models').insert({
+              name: model,
+              data: JAILS.models[model].data
+            });
+          }
           JAILS.models[model].data = result[0].data;
           console.log('updating model object', model, JSON.stringify(result));
           db.close();
@@ -227,14 +236,14 @@ module.exports = function(app) {
     getModel: function(params) {
       var request = params.data,
         server = params.server,
-        model = JAILS.modelInstances[request.model],
+        model = JAILS.modelInstances[request.model + (request.data ? request.data.id : '')],
         connection = params.connection,
         response = {
           model: request.model,
-          data: model ? model.data : 'no model found!'
+          data: model ? model : 'no model found!'
         };
 
-      connection.sendText('{"method":"getModel", "data":' + JSON.stringify(response) + '}');
+      connection.sendText('{"method":"getModel", "data":' + JSON.stringify(response) + ', "req":' + JSON.stringify(model) + '}');
     },
     getIndex: function(params) {
       var request = params.data,

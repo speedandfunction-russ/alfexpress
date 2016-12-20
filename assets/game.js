@@ -34,6 +34,8 @@
       };
     }
   };
+
+
   myJail.socketPromise.then(function() {
     var Tank = myJail.registerModel('TANK', TANK);
     Tank.on('create', function(tank) {

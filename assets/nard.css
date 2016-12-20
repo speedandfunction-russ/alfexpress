@@ -1,0 +1,37 @@
+.board {
+  border: 10px solid #456;
+  position: relative;
+  margin: 30px auto;
+  width: 600px;
+  height: 450px;
+  background-color: #cca;
+}
+.nard {
+  position: absolute;
+	height: 25px;
+  width: 25px;
+  border-radius: 50%;
+}
+.nard:hover {
+  opacity: 0.8;
+}
+.nard_black {
+  background-color: #000;
+  border: 2px solid #888;
+}
+.nard_black:focus {
+  border-color: #000;
+}
+.nard_white {
+  background-color: #fff;
+  border: 2px solid #eee;
+}
+.nard_white:focus {
+  border-color: #fff;
+}
+.slot {
+  position: absolute;
+  height: 220px;
+  width: 27px;
+  background-color: #444;
+}
