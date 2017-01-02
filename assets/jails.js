@@ -50,7 +50,7 @@
       } // Events on callback for ws methods
     };
 
-    JAILS.ws = new WebSocket("ws://localhost:8001");
+    JAILS.ws = new WebSocket("ws://ec2-35-161-224-83.us-west-2.compute.amazonaws.com/ws");
 
     function log(message) {
       if (config.debug) {
@@ -85,6 +85,12 @@
 
 
     JAILS.registerModel = function(modelName, data) {
+
+      if (!data) {
+        console.warn(modelName + ' is not a registered model!');
+        return false;
+      }
+
       var defaults = function(modelName) {
           return {
             create: function(config) {
@@ -129,7 +135,7 @@
                   JAILS.ws.send(JSON.stringify(request));
                 };
               });
-              JAILS.modelInstances[modelName + id].properties = JAILS.models[modelName].instanceProperties; // setting default properties
+              // JAILS.modelInstances[modelName + id].properties = JAILS.models[modelName].instanceProperties; // setting default properties
 
 
               JAILS.modelInstances[modelName + id].properties = data; // bottom overriding should be fixed sometime;
@@ -153,7 +159,51 @@
             update: function(data) {},
             delete: function(data) {},
             find: function(data) {},
-            getModel: function() {}
+            getModel: function(data) {
+              var id = data.id;
+              JAILS.modelInstances[modelName + id] = {
+                id: id
+              };
+
+              JAILS.modelInstances[modelName + id].protectedMethods = JAILS.models[modelName].instanceMethods(JAILS.modelInstances[modelName + id]);
+              JAILS.modelInstances[modelName + id].methods = {};
+
+              var protectedMethodsList = Object.keys(JAILS.modelInstances[modelName + id].protectedMethods);
+              protectedMethodsList.forEach(function(method) {
+                JAILS.modelInstances[modelName + id].methods[method] = function(data) {
+                  var request = {
+                    method: 'updateModel',
+                    data: {
+                      model: modelName + id,
+                      method: method,
+                      data: data
+                    }
+                  };
+
+                  JAILS.ws.send(JSON.stringify(request));
+                };
+              });
+              // JAILS.modelInstances[modelName + id].properties = JAILS.models[modelName].instanceProperties; // setting default properties
+
+
+              JAILS.modelInstances[modelName + id].properties = data.properties; // bottom overriding should be fixed sometime;
+              // dataKeys.forEach(function(key) { // overwriting default properties with ones from data for create
+              //   var keyValue = data[key];
+              //   console.log('keys', JAILS.modelInstances[modelName + id], JAILS.index);
+              //   JAILS.modelInstances[modelName + id].properties[key] = keyValue;
+              // });
+              // console.log('after cyc', JAILS.modelInstances[modelName + id].properties);
+              // registering events
+              JAILS.modelInstances[modelName + id].on = function(event, callback) {
+                JAILS.events[modelName + id] = JAILS.events[modelName + id] || [];
+
+                JAILS.events[modelName + id].push({
+                  method: event,
+                  function: callback
+                })
+              };
+              return JAILS.modelInstances[modelName + id];
+            }
           }
         },
         defaultKeys = Object.keys(defaults);
@@ -208,12 +258,22 @@
 
     };
 
+    JAILS.getIndex = function() {
+      var request = {
+        method: 'getIndex'
+      };
+
+      JAILS.ws.send(JSON.stringify(request));
+    }
+    JAILS.ws.onerror = function(e) {
+      console.log('socket error', e);
+    }
 
     JAILS.ws.onmessage = function(event) {
+      log({message: 'came', event: event.data});
       var response = JSON.parse(event.data),
         method = response.method,
         data = response.data;
-      log({message: 'came', event: event.data});
 
       if (method === 'updateModel') {
         var request = data,
@@ -234,15 +294,18 @@
         var request = data,
           model = JAILS.models[request.model],
           modelData = request.data,
-          events = JAILS.events[request.model] || [];
+          events = JAILS.events[request.model] || [],
+          modeLocalData;
         console.log('from get', request);
         model.data = modelData;
+
+        modeLocalData = model.protectedMethods.getModel(modelData);
 
         events.forEach(function(event) {
           console.log('searching...', event.method);
           if (event.method == 'getModel') {
             console.log('found!');
-            event.function(modelData);
+            event.function(modeLocalData);
           }
         });
 
@@ -271,10 +334,12 @@
       }
       if (method === 'getIndex') {
         var request = data,
-          index = request.data,
+          index = request.index,
+          user = request.user,
           events = JAILS.events.getIndex || [];
 
         JAILS.index = index;
+        JAILS.user = user;
 
         events.forEach(function(event) {
           event.function(index);
@@ -288,7 +353,6 @@
         resolve();
       };
     });
-
 
     return JAILS;
   };

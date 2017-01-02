@@ -10,16 +10,17 @@ module.exports = {
   methods: {},
   properties: {},
   instanceProperties: {
-    messages: []
+    number: 0,
+    player: ''
   },
   instanceMethods: function(self) {
     return {
-      addMessage: function(params) {
-        self.properties.messages.push({
-          user: params.user,
-          message: params.message
-        });
+      set: function(data) {
+
+        self.properties.player = data.player;
+        self.properties.number = data.value;
+
       }
     };
   }
-}
+};

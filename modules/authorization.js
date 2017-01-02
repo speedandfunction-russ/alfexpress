@@ -173,7 +173,8 @@ module.exports = function(app) {
       if (!user) { return res.send(info); }
       req.logIn(user, function(err) {
         if (err) { return next(err); }
-        return res.send('{"message", "logged in successfully"}');
+        return res.redirect('/nard');        
+        // return res.send('{"message", "logged in successfully"}');
       });
     })(req, res);
 
@@ -199,7 +200,7 @@ module.exports = function(app) {
       if (!user) { return res.send(info); }
       req.logIn(user, function(err) {
         if (err) { return next(err); }
-        return res.redirect('/game');
+        return res.redirect('/nard');
       });
     })(req, res);
 
@@ -209,7 +210,7 @@ module.exports = function(app) {
   app.get('/', function(req, res) {
     // Display the Login page with any flash message, if any
     if (req.isAuthenticated()) {
-      res.redirect('/game');
+      res.redirect('/nard');
     }
     res.render('index', { message: req.flash('message') });
   });

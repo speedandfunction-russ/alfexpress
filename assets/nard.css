@@ -1,3 +1,8 @@
+.clearfix:before, .clearfix:after {
+  content: "";
+  clear: both;
+  display: block;
+}
 .board {
   border: 10px solid #456;
   position: relative;
@@ -5,6 +10,15 @@
   width: 600px;
   height: 450px;
   background-color: #cca;
+}
+.board:before {
+  content: "";
+  height: 100%;
+  border-left: 2px dashed #000;
+  position: absolute;
+  left: 50%;
+  top: 0;
+  margin-left: -2px;
 }
 .nard {
   position: absolute;
@@ -15,23 +29,52 @@
 .nard:hover {
   opacity: 0.8;
 }
+.nard.selected {
+  height: 30px;
+  width: 30px;
+  margin-left: -2px;
+  z-index: 10;
+}
 .nard_black {
   background-color: #000;
   border: 2px solid #888;
 }
-.nard_black:focus {
-  border-color: #000;
+.nard_black:focus, .nard_black.selected {
+  border-color: #444;
 }
 .nard_white {
   background-color: #fff;
-  border: 2px solid #eee;
+  border: 2px solid #ccc;
 }
-.nard_white:focus {
-  border-color: #fff;
+.nard_white:focus, .nard_white.selected {
+  border-color: #eee;
+}
+.nard.selected {
 }
 .slot {
   position: absolute;
   height: 220px;
   width: 27px;
   background-color: #444;
+}
+.slot:hover {
+  opacity: .85;
+}
+#chat-form {
+  float: left;
+  width: 150px;
+  height: 200px;
+}
+#chat {
+  overflow-y: scroll;
+  padding: 0 10px;
+  max-height: 100px;
+  min-width: 200px;
+  float: left;
+}
+
+@keyframes flush {
+    0% {opacity: 1;}
+    50% {opacity: .3;}
+    100% {opacity: 1;}
 }

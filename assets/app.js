@@ -36,7 +36,7 @@ $(function(){
 
   $('.form-signin').on('submit', function(){
     $.post( "/login", {username: $('#username').val(), password: $('#password').val()}).done(function( data ) {
-      document.location.href = "/chat";
+      document.location.href = "/nard";
     });
 
     return false;

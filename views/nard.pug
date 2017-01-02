@@ -1,9 +1,19 @@
 html
   head
     link(rel="stylesheet",type="text/css",href="nard.css")
+    meta(name="robots", content="noindex, nofollow")
   body
     .container
+      button#new-board Set new Board
+      button#reset Reset
+      #cube-container
+      #player
       .board#board
+    .container.clearfix
+      form#chat-form
+        input#chat-input
+        button(type="submit") Send message
+      #chat
     script(src="/jails_polyfill.js")
     script(src="/jails.js")
     script(src="/nard.js")

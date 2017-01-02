@@ -15,6 +15,8 @@ module.exports = function(app) {
 
   var TANK = require('../models/tank.js');
   var NARD = require('../models/nard.js');
+  var RANDOM_CUBE = require('../models/random-cube.js');
+  var CHAT = require('../models/chat.js');
 
   var JAILS = {
     models: {}, // Stores model constructors
@@ -50,9 +52,10 @@ module.exports = function(app) {
             JAILS.modelInstances[modelName + id].methods = JAILS.models[modelName].instanceMethods(JAILS.modelInstances[modelName + id]);
             JAILS.modelInstances[modelName + id].properties = JAILS.models[modelName].instanceProperties; // setting default properties
 
-            dataKeys.forEach(function(key) { // overwriting default properties with ones from data for create
-              JAILS.modelInstances[modelName + id].properties[key] = data[key];
-            });
+            JAILS.modelInstances[modelName + id].properties = data; // bottom overriding should be fixed sometime;
+            // dataKeys.forEach(function(key) { // overwriting default properties with ones from data for create
+            //   JAILS.modelInstances[modelName + id].properties[key] = data[key];
+            // });
 
             return JAILS.modelInstances[modelName + id];
           },
@@ -86,6 +89,8 @@ module.exports = function(app) {
 
   JAILS.registerModel('TANK', TANK);
   JAILS.registerModel('NARD', NARD);
+  JAILS.registerModel('RANDOM_CUBE', RANDOM_CUBE);
+  JAILS.registerModel('CHAT', CHAT);
 
 
   var setConnectionName = function(conn) {
@@ -103,7 +108,7 @@ module.exports = function(app) {
         }
 
         function set() {
-          console.log('mod data', JAILS.models[model].data);
+          // console.log('mod data', JAILS.models[model].data);
           db.collection('models').update({name: model}, {
             $set: {
               data: JAILS.models[model].data
@@ -195,7 +200,7 @@ module.exports = function(app) {
 
 
   // Use syncToDb first to reset all the data to default on each start
-  syncFromDb();
+  // syncFromDb();
   syncToDb(2000);
 
   var METHODS = {
@@ -229,9 +234,9 @@ module.exports = function(app) {
         model = JAILS.modelInstances[request.model],
         data = request.data;
 
-      model.methods[method](data);
+      var result = model.methods[method](data) || request;
 
-      broadcast(server, '{"method":"updateModel", "data":' + JSON.stringify(request) + '}');
+      broadcast(server, '{"method":"updateModel", "data":' + JSON.stringify(result) + '}');
     },
     getModel: function(params) {
       var request = params.data,
@@ -251,10 +256,11 @@ module.exports = function(app) {
         index = JAILS.index,
         connection = params.connection,
         response = {
-          index: index
+          index: index,
+          user: connection.user
         };
 
-      connection.sendText('{"method":"getModel", "data":' + JSON.stringify(response) + '}');
+      connection.sendText('{"method":"getIndex", "data":' + JSON.stringify(response) + '}');
     },
     create: function(params) {
       console.log('j', JAILS.models, params.data.model);
@@ -277,7 +283,16 @@ module.exports = function(app) {
 
   var server = ws.createServer(function (conn) {
       try {
-        var cookie = conn.headers.cookie.match(/; wsconnection=(.*)(;|$)/)[1];
+        var cookies = conn.headers.cookie.split('; ');
+        var cookie;
+        cookies.forEach(function(c) {
+          var name = c.split('=')[0];
+          var value = c.split('=')[1];
+
+          if (name === 'wsconnection') {
+            cookie = value;
+          }
+        });
         var session = app.modules.crypto.decrypt(cookie);
       } catch (e) {
         console.log('error creating connection session', e);
