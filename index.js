@@ -9,6 +9,7 @@ app.modules.dbapi = require('./modules/dbapi.js')(app);
 app.modules.wsapi = require('./modules/wsapi.js')(app);
 app.modules.game = require('./modules/game.js')(app);
 app.modules.nard = require('./modules/nard.js')(app);
+app.modules.chat = require('./modules/chat.js')(app);
 // var path = require("path");
 var port = process.env.PORT || 3000;
 
