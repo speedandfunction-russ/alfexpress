@@ -1,5 +1,7 @@
 // requires:
 // authorization module
+var fs = require('fs');
+
 module.exports = function(app) {
 
   var MongoClient = require('mongodb').MongoClient;
@@ -324,8 +326,11 @@ module.exports = function(app) {
       });
   }).listen(8001)
 
-  app.get('/jails.js', app.modules.auth.isAuthenticated, function(req, res){
-    res.send('JAILS.models = ');
+  app.get('/jails.js', function(req, res){
+    fs.readFile('assets/jails.js', 'utf8', function(err, data) {
+      res.send('(function(CONFIG) {' + data + '})(' + JSON.stringify(app.config.JAILS) + ');');
+    });
+
   });
 
   return {

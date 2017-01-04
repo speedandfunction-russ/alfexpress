@@ -9,8 +9,8 @@ function getRandomInt(min, max) {
   var slotsNum = 24,
     nardsNum = 15,
     myJail = Jails({
-    debug: true
-  });
+      debug: true
+    });
 
   var boardElement = document.getElementById('board');
   var cubeContainer = document.getElementById('cube-container');
@@ -126,221 +126,230 @@ function getRandomInt(min, max) {
     }
   };
 
-  myJail.socketPromise.then(function() {
-    myJail.events.getIndex = [
-      {
-        function: function() {
-          var Nard = myJail.registerModel('NARD', NARD);
-          var RandomCube = myJail.registerModel('RANDOM_CUBE', RANDOM_CUBE);
-          var Chat = myJail.registerModel('CHAT', CHAT);
+  function setupGameboard() {
+    var Nard = myJail.registerModel('NARD', NARD);
+    var RandomCube = myJail.registerModel('RANDOM_CUBE', RANDOM_CUBE);
+    var Chat = myJail.registerModel('CHAT', CHAT);
 
-          GAMEBOARD.player = myJail.user;
-          console.log('player', GAMEBOARD.player);
+    GAMEBOARD.player = myJail.user;
+    console.log('player', GAMEBOARD.player);
 
-          function setItem(nardItem){
-            console.log('creating nard', nardItem);
-            var nardHtml = document.createElement('button');
-            var nard = nardItem;
-            var color = nard.properties.color;
-            nardHtml.className = 'nard nard_' + nard.properties.color;
-            nardHtml.id = 'nard' + nard.id;
-            nardHtml.nard = nard;
-            boardElement.append(nardHtml);
-            GAMEBOARD.addItem(nard, nard.properties.position);
-            function moveNard(position) {
+    function setItem(nardItem) {
+      console.log('creating nard', nardItem);
+      var nardHtml = document.createElement('button');
+      var nard = nardItem;
+      var color = nard.properties.color;
+      nardHtml.className = 'nard nard_' + nard.properties.color;
+      nardHtml.id = 'nard' + nard.id;
+      nardHtml.nard = nard;
+      boardElement.append(nardHtml);
+      GAMEBOARD.addItem(nard, nard.properties.position);
+      function moveNard(position) {
 
-              e.preventDefault();
+        e.preventDefault();
 
-              nard.methods.move(position);
+        nard.methods.move(position);
 
-            }
+      }
 
-            nardHtml.onclick = function() {
-              document.querySelectorAll('.nard.selected').forEach(function(nard) {
-                var clsText = nard.className;
+      nardHtml.onclick = function() {
+        document.querySelectorAll('.nard.selected').forEach(function(nard) {
+          var clsText = nard.className;
 
-                var clses = clsText.split(' ');
-                clses.splice(clses.indexOf('selected'), 1);
+          var clses = clsText.split(' ');
+          clses.splice(clses.indexOf('selected'), 1);
 
-                nard.className = clses.join(' ');
-              });
-              this.className += ' selected';
-              GAMEBOARD.selectedNard = nard;
-            };
+          nard.className = clses.join(' ');
+        });
+        this.className += ' selected';
+        GAMEBOARD.selectedNard = nard;
+      };
 
-            nard.on('move', function(slot) {
-              GAMEBOARD.moveItem(nard, slot);
-              console.log(GAMEBOARD);
-            });
+      nard.on('move', function(slot) {
+        GAMEBOARD.moveItem(nard, slot);
+        console.log(GAMEBOARD);
+      });
 
-          }
+    }
 
-          function setCube(cubeItem) {
-            console.log('creating cube', cubeItem);
-            var cubeHtml = document.createElement('button');
-            var cube = cubeItem;
-            cubeHtml.innerHTML = (cube.properties.number);
-            cubeHtml.id = 'cube' + cube.id;
-            cubeHtml.cube = cube;
-            cubeContainer.append(cubeHtml);
-            playerName.innerHTML = cube.properties.player;
-            GAMEBOARD.cubes = GAMEBOARD.cubes || [];
-            GAMEBOARD.cubes.push(cube);
-            cubeContainer.onclick = function() {
-              if (GAMEBOARD.cubes[0].properties.player === GAMEBOARD.player) {
-                alert('Wait for other player!');
-                return false;
-              }
-              
-              GAMEBOARD.cubes.forEach(function(cube) {
-                cube.methods.set({
-                  value: getRandomInt(1, 6),
-                  player: GAMEBOARD.player
-                });
-              });
-            };
-
-            cube.on('set', function(data) {
-              console.log('setting cube', data);
-
-              cubeHtml.innerHTML = cube.properties.number;
-              playerName.innerHTML = cube.properties.player;
-            });
-
-          }
-
-          function setChat(chat) {
-            console.log('creating chat', chat);
-            var chatHtml = '';
-            chat.properties.messages.forEach(function(params) {
-              chatHtml = '<div class="message"><span class="user">' + params.user + ':</span><span class="content">' + params.message + '</span></div>' + chatHtml;
-            });
-            chatContainer.innerHTML = chatHtml;
-            chatForm.onsubmit = function() {
-              chat.methods.addMessage({
-                message: chatInput.value,
-                user: GAMEBOARD.player
-              });
-              chatInput.value = '';
-              return false;
-            };
-
-            chat.on('addMessage', function(params) {
-              chatContainer.innerHTML = '<div class="message"><span class="user">' + params.user + ':</span><span class="content">' + params.message + '</span></div>' + chatContainer.innerHTML;
-            });
-
-          }
-
-          Nard.on('create', function(nard) {
-            setItem(nard);
+    function setCube(cubeItem) {
+      console.log('creating cube', cubeItem);
+      var cubeHtml = document.createElement('button');
+      var cube = cubeItem;
+      cubeHtml.innerHTML = (cube.properties.number);
+      cubeHtml.id = 'cube' + cube.id;
+      cubeHtml.cube = cube;
+      cubeContainer.append(cubeHtml);
+      playerName.innerHTML = cube.properties.player;
+      GAMEBOARD.cubes = GAMEBOARD.cubes || [];
+      GAMEBOARD.cubes.push(cube);
+      cubeContainer.onclick = function() {
+        if (GAMEBOARD.cubes[0].properties.player === GAMEBOARD.player) {
+          alert('Wait for other player!');
+          return false;
+        }
+        
+        GAMEBOARD.cubes.forEach(function(cube) {
+          cube.methods.set({
+            value: getRandomInt(1, 6),
+            player: GAMEBOARD.player
           });
+        });
+      };
 
-          Nard.on('getModel', function(nard) {
-            setItem(nard);
-          });
+      cube.on('set', function(data) {
+        console.log('setting cube', data);
 
-          RandomCube.on('create', function(cube) {
-            setCube(cube);
-          });
+        cubeHtml.innerHTML = cube.properties.number;
+        playerName.innerHTML = cube.properties.player;
+      });
 
-          RandomCube.on('getModel', function(cube) {
-            setCube(cube);
-          });
+    }
 
-          Chat.on('create', function(chat) {
-            setChat(chat);
-          });
+    function setChat(chat) {
+      console.log('creating chat', chat);
+      var chatHtml = '';
+      chat.properties.messages.forEach(function(params) {
+        chatHtml = '<div class="message"><span class="user">' + params.user + ':</span><span class="content">' + params.message + '</span></div>' + chatHtml;
+      });
+      chatContainer.innerHTML = chatHtml;
+      chatForm.onsubmit = function() {
+        chat.methods.addMessage({
+          message: chatInput.value,
+          user: GAMEBOARD.player
+        });
+        chatInput.value = '';
+        return false;
+      };
 
-          Chat.on('getModel', function(chat) {
-            setChat(chat);
-          });
+      chat.on('addMessage', function(params) {
+        chatContainer.innerHTML = '<div class="message"><span class="user">' + params.user + ':</span><span class="content">' + params.message + '</span></div>' + chatContainer.innerHTML;
+      });
 
-          function loadBoard() {
-            for (var i = 0; i < 2*nardsNum; i++) {
-              Nard.methods.getModel({id: i});
-            }
-            for (var i = 0; i < 2; i++) {
-              RandomCube.methods.getModel({id: i});
-            }
-            Chat.methods.getModel({id: 0});
-          }
+    }
 
-          function setNewBoard() {
-            for (var i = 0; i < nardsNum; i++) {
-              Nard.methods.create({
-                position: 1,
-                color: 'black'
-              });
-            }
+    Nard.on('create', function(nard) {
+      setItem(nard);
+    });
 
-            for (var i = 0; i < nardsNum; i++) {
-              Nard.methods.create({
-                position: 13,
-                color: 'white'
-              });
-            }
+    Nard.on('getModel', function(nard) {
+      setItem(nard);
+    });
 
-            for (var i = 0; i < 2; i++) {
-              RandomCube.methods.create({
-                number: 1,
-                player: 'noone'
-              });
-            }
-            Chat.methods.create({
-              messages: []
-            });
-          }
-          function reset() {
+    RandomCube.on('create', function(cube) {
+      setCube(cube);
+    });
 
-            for (var j = 0; j <= slotsNum; j++) {
-              GAMEBOARD['slot' + j] = [];
-            }
+    RandomCube.on('getModel', function(cube) {
+      setCube(cube);
+    });
 
-            function resetNard(id) {
-              var nard = myJail.modelInstances['NARD' + id];
+    Chat.on('create', function(chat) {
+      setChat(chat);
+    });
 
-              if (nard.properties.color === 'white') {
-                nard.methods.move(13);
-              }
+    Chat.on('getModel', function(chat) {
+      setChat(chat);
+    });
 
-              if (nard.properties.color === 'black') {
-                nard.methods.move(1);
-              }
-            }
+    function loadBoard() {
+      for (var i = 0; i < 2*nardsNum; i++) {
+        Nard.methods.getModel({id: i});
+      }
+      for (var i = 0; i < 2; i++) {
+        RandomCube.methods.getModel({id: i});
+      }
+      Chat.methods.getModel({id: 0});
+    }
 
-            for (var i = 0; i < (nardsNum * 2); i++) {
-              resetNard(i);
-            }
+    function setNewBoard() {
+      for (var i = 0; i < nardsNum; i++) {
+        Nard.methods.create({
+          position: 1,
+          color: 'black'
+        });
+      }
 
-            GAMEBOARD.cubes.forEach(function(cube) {
-              cube.methods.set({
-                value: 1,
-                player: ''
-              });
-            });
-          }
-          loadBoard();
-          // document.getElementById('load-board').onclick = function() {
-          //   loadBoard();
-          // };
+      for (var i = 0; i < nardsNum; i++) {
+        Nard.methods.create({
+          position: 13,
+          color: 'white'
+        });
+      }
 
-          document.getElementById('new-board').onclick = function() {
-            setNewBoard();
-          };
+      for (var i = 0; i < 2; i++) {
+        RandomCube.methods.create({
+          number: 1,
+          player: 'noone'
+        });
+      }
+      Chat.methods.create({
+        messages: []
+      });
+    }
+    function reset() {
 
-          document.getElementById('reset').onclick = function() {
-            reset();
-          };
+      for (var j = 0; j <= slotsNum; j++) {
+        GAMEBOARD['slot' + j] = [];
+      }
 
+      function resetNard(id) {
+        var nard = myJail.modelInstances['NARD' + id];
+
+        if (nard.properties.color === 'white') {
+          nard.methods.move(13);
+        }
+
+        if (nard.properties.color === 'black') {
+          nard.methods.move(1);
         }
       }
-    ];
-    myJail.getIndex();
-    myJail.ws.onclose = function(e) {
-      alert('Ты отключена от сервера. Перегрузи страницу, чтобы продолжить игру' + e.code);
-      // window.location.reload();
+
+      for (var i = 0; i < (nardsNum * 2); i++) {
+        resetNard(i);
+      }
+
+      GAMEBOARD.cubes.forEach(function(cube) {
+        cube.methods.set({
+          value: 1,
+          player: ''
+        });
+      });
+    }
+    loadBoard();
+    // document.getElementById('load-board').onclick = function() {
+    //   loadBoard();
+    // };
+
+    document.getElementById('new-board').onclick = function() {
+      setNewBoard();
     };
 
-  });
-  window.board = GAMEBOARD;
+    document.getElementById('reset').onclick = function() {
+      reset();
+    };
+
+  }
+
+  myJail.on('getIndex', setupGameboard);
+
+  // myJail.on('getIndex', function() {
+  //   myJail.ws.onclose = function(e) {
+  //     alert('Ты отключена от сервера. Перегрузи страницу, чтобы продолжить игру' + e.code);
+  //     // window.location.reload();
+  //   };    
+  // });
+
+  myJail.getIndex();
+  
+
+  // myJail.socketPromise.then(function() {
+  //   myJail.events.getIndex = [
+  //     {
+  //       function: 
+  //     }
+  //   ];
+
+  // });
+  // window.board = GAMEBOARD;
 })();

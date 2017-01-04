@@ -50,7 +50,9 @@
       } // Events on callback for ws methods
     };
 
-    JAILS.ws = new WebSocket("ws://ec2-35-161-224-83.us-west-2.compute.amazonaws.com/ws");
+    JAILS.config = CONFIG; // CONFIG is set by backend based on env data
+
+    JAILS.ws = new WebSocket(JAILS.config.ws);
 
     function log(message) {
       if (config.debug) {
@@ -258,16 +260,29 @@
 
     };
 
-    JAILS.getIndex = function() {
-      var request = {
-        method: 'getIndex'
-      };
+    // Global JAILS events
+    JAILS.on = function(event, callback) {
+      JAILS.events[event] = JAILS.events[event] || [];
 
-      JAILS.ws.send(JSON.stringify(request));
-    }
+      JAILS.events[event].push({
+        function: callback
+      });
+
+    };
+
+    JAILS.getIndex = function() {
+      JAILS.socketPromise.then(function() {
+        var request = {
+          method: 'getIndex'
+        };
+
+        JAILS.ws.send(JSON.stringify(request));
+      });
+    };
+
     JAILS.ws.onerror = function(e) {
       console.log('socket error', e);
-    }
+    };
 
     JAILS.ws.onmessage = function(event) {
       log({message: 'came', event: event.data});

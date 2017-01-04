@@ -1,7 +1,6 @@
 var express = require('express');
 var app = express();
 app.modules = {};
-app.env = 'dev';
 app.config = require('./config.js')(app);
 app.modules.crypto = require('./modules/crypto.js')(app);
 app.modules.auth = require('./modules/authorization.js')(app);
