@@ -260,6 +260,10 @@
 
     };
 
+    JAILS.loadModel = function(name) {
+      return JAILS.registerModel(name, MODELS[name]); // MODELS object is set by backend;
+    };
+
     // Global JAILS events
     JAILS.on = function(event, callback) {
       JAILS.events[event] = JAILS.events[event] || [];

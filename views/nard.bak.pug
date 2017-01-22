@@ -3,6 +3,12 @@ html
     link(rel="stylesheet",type="text/css",href="nard.css")
     meta(name="robots", content="noindex, nofollow")
   body
+    .container
+      button#new-board Set new Board
+      button#reset Reset
+      #cube-container
+      #player
+      .board#board
     .container.clearfix
       form#chat-form
         input#chat-input
@@ -10,7 +16,5 @@ html
       #chat
     script(src="/jails_polyfill.js")
     script(src="/jails.js")
-    script(src="/chat.module.js")
-    script(src="/nard-game.module.js")
     script(src="/nard.js")
 

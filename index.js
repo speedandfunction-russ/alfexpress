@@ -1,7 +1,9 @@
 var express = require('express');
 var app = express();
 app.modules = {};
+app.helpers = {};
 app.config = require('./config.js')(app);
+app.helpers.readFolder = require('./modules/read-folder.js')(app);
 app.modules.crypto = require('./modules/crypto.js')(app);
 app.modules.auth = require('./modules/authorization.js')(app);
 app.modules.dbapi = require('./modules/dbapi.js')(app);
@@ -22,6 +24,7 @@ app.set('view engine', 'pug');
 
 app.use(express.static('bower_components'));
 app.use(express.static('assets'));
+app.use(express.static('static'));
 app.use('/models', express.static('views/models'))
 
 

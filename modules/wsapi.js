@@ -7,18 +7,15 @@ module.exports = function(app) {
   var MongoClient = require('mongodb').MongoClient;
 
   var ws = require('nodejs-websocket');
-   var cookieParser = require('cookie-parser')
-  // Scream server example: "hi" -> "HI!!!" 
+  var cookieParser = require('cookie-parser');
+
   var broadcast = function (server, msg) {
     server.connections.forEach(function (conn) {
         conn.sendText(msg);
     });
   };
 
-  var TANK = require('../models/tank.js');
-  var NARD = require('../models/nard.js');
-  var RANDOM_CUBE = require('../models/random-cube.js');
-  var CHAT = require('../models/chat.js');
+  var feModelsString = '';
 
   var JAILS = {
     models: {}, // Stores model constructors
@@ -89,10 +86,30 @@ module.exports = function(app) {
 
   };
 
-  JAILS.registerModel('TANK', TANK);
-  JAILS.registerModel('NARD', NARD);
-  JAILS.registerModel('RANDOM_CUBE', RANDOM_CUBE);
-  JAILS.registerModel('CHAT', CHAT);
+  app.helpers.readFolder('models/', function(err, data, next, fileName) {
+    var modelName = fileName.split('.js')[0].replace('-', '_').toUpperCase(); // remove .js, replace dash with underscore and convert to uppercase
+    if (err) {
+      console.log('ERROR registering model ' + modelName, err);
+      next();
+      return false;
+    }
+    console.log('registering model ' + modelName);
+
+    feModelsString += data.replace('module.exports', 'MODELS.' + modelName);
+
+    JAILS.registerModel(
+      modelName,
+      require('../models/' + fileName) // require model object
+    );
+
+    next();
+  }, function() {
+    console.log('model registration complete');
+  });
+
+  // JAILS.registerModel('NARD', NARD);
+  // JAILS.registerModel('RANDOM_CUBE', RANDOM_CUBE);
+  // JAILS.registerModel('CHAT', CHAT);
 
 
   var setConnectionName = function(conn) {
@@ -250,7 +267,7 @@ module.exports = function(app) {
           data: model ? model : 'no model found!'
         };
 
-      connection.sendText('{"method":"getModel", "data":' + JSON.stringify(response) + ', "req":' + JSON.stringify(model) + '}');
+      connection.sendText('{"method":"getModel", "data":' + JSON.stringify(response) + ', "req":' + JSON.stringify(request) + '}');
     },
     getIndex: function(params) {
       var request = params.data,
@@ -328,7 +345,7 @@ module.exports = function(app) {
 
   app.get('/jails.js', function(req, res){
     fs.readFile('assets/jails.js', 'utf8', function(err, data) {
-      res.send('(function(CONFIG) {' + data + '})(' + JSON.stringify(app.config.JAILS) + ');');
+      res.send('(function(CONFIG) {var MODELS = {};' + feModelsString + ';' + data + '})(' + JSON.stringify(app.config.JAILS) + ');');
     });
 
   });
