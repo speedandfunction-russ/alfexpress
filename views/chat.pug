@@ -1,23 +1,65 @@
 html
   head
     link(rel="stylesheet",type="text/css",href="app.css")
+    link(rel="stylesheet",type="text/css",href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css")
+    link(rel="stylesheet",type="text/css",href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css")
     meta(name="robots", content="noindex, nofollow")
   body
     .contaner
-      .h2 Web socket chat
       .user-info
         p.name #{user}
         p.ip IP: #{ip}
-      form#chat_form(action='api/documents',method="GET")
-        input#username(type="hidden",value=user)
-        fieldset.fieldset
-          .field-group
-            label.label(for="message") Message
-            textarea.field#message(type="text",name="message")
-        .actions
-          button.btn.btn_danger Send
-          button.btn.btn_danger#synch Synch
-      .flash.hidden
+      form.chat_window#chat_form(action='api/documents',method="GET")
+        .top_menu
+          .title
+            | Chat
+        ul.messages#chat
+        div.bottom_wrapper.clearfix
+          div.message_input_wrapper
+            input.message_input#message(placeholder="Type your message here...")
+          button.send_message
+            div.icon
+            .text Send
     script(src="/jQuery/dist/jquery.min.js")
-    script(src="/app.js")
+    script(src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js")
+    script(src="/jails_polyfill.js")
+    script(src="/jails.js")
+    script(src="/chat.module.js")
+    script(src="/chat.js")
 
+//-     <!-- Latest compiled and minified CSS -->
+//- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+//- <!-- Optional theme -->
+//- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+//- <!-- Latest compiled and minified JavaScript -->
+//- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+//- <div class="chat_window">
+//-   <div class="top_menu">
+//-   <div class="buttons">
+//-     <div class="button close"></div>
+//-     <div class="button minimize"></div>
+//-     <div class="button maximize"></div>
+//-   </div>
+//-   <div class="title">Chat</div>
+//- </div><ul class="messages"></ul>
+//- <div class="bottom_wrapper clearfix">
+//-   <div class="message_input_wrapper">
+//-   <input class="message_input" placeholder="Type your message here..." /></div>
+//-   <div class="send_message">
+//-   <div class="icon"></div>
+//-   <div class="text">Send</div>
+//- </div>
+//- </div>
+//- </div>
+//- <div class="message_template">
+//- <li class="message">
+//- <div class="avatar"></div>
+//- <div class="text_wrapper">
+//- <div class="text"></div>
+//- </div>
+//- </li>
+//- </div>

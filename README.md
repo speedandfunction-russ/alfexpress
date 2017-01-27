@@ -17,7 +17,7 @@ bower install
 ```
 6. Run mongodb
 ```
-mongod
+sudo mongod
 ```
 7. Run server
 ```

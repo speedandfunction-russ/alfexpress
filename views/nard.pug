@@ -1,13 +1,27 @@
 html
   head
+    link(rel="stylesheet",type="text/css",href="app.css")
     link(rel="stylesheet",type="text/css",href="nard.css")
+    link(rel="stylesheet",type="text/css",href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css")
+    link(rel="stylesheet",type="text/css",href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css")
+
     meta(name="robots", content="noindex, nofollow")
   body
-    .container.clearfix
-      form#chat-form
-        input#chat-input
-        button(type="submit") Send message
-      #chat
+    .contaner
+      .user-info
+        p.name #{user}
+        p.ip IP: #{ip}
+      form.chat_window#chat_form(action='api/documents',method="GET")
+        .top_menu
+          .title
+            | Chat
+        ul.messages#chat
+        div.bottom_wrapper.clearfix
+          div.message_input_wrapper
+            input.message_input#message(placeholder="Type your message here...")
+          button.send_message
+            div.icon
+            .text Send
     script(src="/jails_polyfill.js")
     script(src="/jails.js")
     script(src="/chat.module.js")
