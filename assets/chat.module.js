@@ -37,7 +37,11 @@ call JailsModules.chat(config) with config = {
       console.log('creating chat', chat);
       var chatHtml = '';
       chat.properties.messages.forEach(function(params) {
-        chatHtml = '<div class="message"><span class="user">' + params.user + ':</span><span class="content">' + params.message + '</span></div>' + chatHtml;
+        var messageAlignment = 'left';
+        if (config.jail.user === params.user) {
+          messageAlignment = 'right';
+        }
+        chatHtml = '<li class="message ' + messageAlignment + ' appeared"><div class="avatar">' + params.user + ':</div><div class="text_wrapper"><div class="text">' + params.message + '</div></div></li>' + chatHtml;
       });
       config.chatContainer.innerHTML = chatHtml;
       config.chatForm.onsubmit = function() {
@@ -49,7 +53,11 @@ call JailsModules.chat(config) with config = {
         return false;
       };
       chat.on('addMessage', function(params) {
-        config.chatContainer.innerHTML = '<div class="message"><span class="user">' + params.user + ':</span><span class="content">' + params.message + '</span></div>' + config.chatContainer.innerHTML;
+        var messageAlignment = 'left';
+        if (config.jail.user === params.user) {
+          messageAlignment = 'right';
+        }
+        config.chatContainer.innerHTML = '<li class="message ' + messageAlignment + ' appeared"><div class="avatar">' + params.user + ':</div><div class="text_wrapper"><div class="text">' + params.message + '</div></div></li>' + config.chatContainer.innerHTML;
       });
 
     }
