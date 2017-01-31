@@ -12,7 +12,7 @@ module.exports = {
   instanceProperties: {},
   instanceMethods: function(self) {
     return {
-      reset: function(position) {
+      reset: function() {
         for (var i = 1; i <= 12; i++) {
           self.properties['slotA' + i] = {
             color: "",

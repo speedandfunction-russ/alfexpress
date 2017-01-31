@@ -1,6 +1,15 @@
 .hidden {
   display: none;
 }
+.grid_float .col {
+  float: left;
+}
+.col {
+  margin-right: 2%;
+}
+.col:last-child {
+  margin-right: 0;
+}
 .fieldset {
   text-align: center;
   border: none;
@@ -64,7 +73,7 @@ body {
 }
 
 .chat_window {
-  position: absolute;
+  position: relative;
   width: 400px;
   max-width: 800px;
   height: 500px;

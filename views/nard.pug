@@ -7,24 +7,55 @@ html
 
     meta(name="robots", content="noindex, nofollow")
   body
-    .contaner
-      .user-info
-        p.name #{user}
-        p.ip IP: #{ip}
-      form.chat_window#chat_form(action='api/documents',method="GET")
-        .top_menu
-          .title
-            | Chat
-        ul.messages#chat
-        div.bottom_wrapper.clearfix
-          div.message_input_wrapper
-            input.message_input#message(placeholder="Type your message here...")
-          button.send_message
-            div.icon
-            .text Send
+    h1 Nard Game Demo
+    .user-info
+      span.name
+        strong User:
+        | #{user}
+      | &nbsp;
+      span.ip
+        strong IP: 
+        | #{ip}
+    .grid.grid_float.container.clearfix
+      .board.col
+        .slot.slot_top.slot1
+        .slot.slot_top.slot2
+        .slot.slot_top.slot3
+        .slot.slot_top.slot4
+        .slot.slot_top.slot5
+        .slot.slot_top.slot6
+        .slot.slot_top.slot7
+        .slot.slot_top.slot8
+        .slot.slot_top.slot9
+        .slot.slot_top.slot10
+        .slot.slot_top.slot11
+        .slot.slot_top.slot12
+        .slot.slot_bottom.slot1
+        .slot.slot_bottom.slot2
+        .slot.slot_bottom.slot3
+        .slot.slot_bottom.slot4
+        .slot.slot_bottom.slot5
+        .slot.slot_bottom.slot6
+        .slot.slot_bottom.slot7
+        .slot.slot_bottom.slot8
+        .slot.slot_bottom.slot9
+        .slot.slot_bottom.slot10
+        .slot.slot_bottom.slot11
+        .slot.slot_bottom.slot12
+      .col.chat
+        form.chat_window#chat_form(action='api/documents',method="GET")
+          .top_menu
+            .title
+              | Chat
+          ul.messages#chat
+          div.bottom_wrapper.clearfix
+            div.message_input_wrapper
+              input.message_input#message(placeholder="Type your message here...")
+            button.send_message
+              div.icon
+              .text Send
     script(src="/jails_polyfill.js")
     script(src="/jails.js")
     script(src="/chat.module.js")
-    script(src="/nard-game.module.js")
     script(src="/nard.js")
 
